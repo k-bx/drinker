@@ -62,16 +62,3 @@ drinkerViaEfqC1 (A : U) (D : A -> U) (x : A)
 drinkerViaEfq (A : U) (D : A -> U) (x : A)
   : ((x : A) * ((y : D x) -> (z : A) -> D z))
   = drinkerViaEfqC1 A D x (allOrCounterex A D)
-
-
--- drinker2c1 (A : U) (D : A -> U) (x : A)
---   : (Either ((q : A) -> D q) ((q : A) * (D q -> Absurd)))
---   -> ((x : A) * ((y : D x) -> (z : A) -> D z))
---   = split
---   Left allD -> (x, (\(_ : D x) -> allD))
---   Right pair -> (pair.1, \(y : D pair.1) -> \(_ : A) -> pair.2 y)
---   -- Right pair -> (pair.1, \(y : D pair.1) -> pair.2 y)
-
--- drinker2 (A : U) (D : A -> U) (x : A)
---   : ((x : A) * ((y : D x) -> (z : A) -> D z))
---   = drinker2c1 A D x (allOrCounterex A D)
