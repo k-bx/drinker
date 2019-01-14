@@ -6,13 +6,20 @@ module drinker where
 -- drinker (A : U) (B : A -> U) (x : A) : ((x : A) * ((y : B x) -> (z : A) -> B z))
 --   = (x, (\(y : B x) -> ?))
 
+
+-- prelude.ctt
+
+-- "Absurd" or "Impossible" type
+data N0 =
+
 efq (A : U) : N0 -> A = split {}
+neg (A : U) : U = A -> N0
+
+-- /prelude.ctt
 
 data bool = true | false
 
 data Either (A B : U) = Left (a : A) | Right (b : B)
-
-data Absurd =
 
 -- drinker (A : U) (D : A -> U) (x : A)
 --   : ((x : A) * ((y : D x) -> (z : A) -> D z))
@@ -27,19 +34,21 @@ data Absurd =
 -- "Either all items satisfy given property, or I'll give you a counter-example"
 -- To be proven later
 allOrCounterex (A : U) (D : A -> U)
-  : (Either ((x : A) -> D x) ((x : A) * (D x -> Absurd)))
+  : (Either ((x : A) -> D x) ((x : A) * (D x -> N0)))
   = undefined
 
-drinker2eitherc1 (A : U) (D : A -> U) (x : A)
-  : (Either ((q : A) -> D q) ((q : A) * (D q -> Absurd)))
-  -> ((x : A) * ((y : D x) -> (z : A) -> Either Absurd (D z)))
+-- continuation 1
+drinkerViaEitherAbsurdC1 (A : U) (D : A -> U) (x : A)
+  : (Either ((q : A) -> D q) ((q : A) * (D q -> N0)))
+  -> ((x : A) * ((y : D x) -> (z : A) -> Either N0 (D z)))
   = split
   Left allD -> (x, (\(_ : D x) -> \(z : A) -> Right (allD z)))
   Right pair -> (pair.1, \(y : D pair.1) -> \(_ : A) -> Left (pair.2 y))
 
-drinker2either (A : U) (D : A -> U) (x : A)
-  : ((x : A) * ((y : D x) -> (z : A) -> Either Absurd (D z)))
-  = drinker2eitherc1 A D x (allOrCounterex A D)
+-- Solution via Either Absurd
+drinkerViaEitherAbsurd (A : U) (D : A -> U) (x : A)
+  : ((x : A) * ((y : D x) -> (z : A) -> Either N0 (D z)))
+  = drinkerViaEitherAbsurdC1 A D x (allOrCounterex A D)
 
 -- drinker2c1 (A : U) (D : A -> U) (x : A)
 --   : (Either ((q : A) -> D q) ((q : A) * (D q -> Absurd)))
