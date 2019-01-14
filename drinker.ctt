@@ -18,6 +18,10 @@ neg (A : U) : U = A -> N0
 data or (A B : U) = inl (a : A)
                   | inr (b : B)
 
+dec (A : U) : U = or A (neg A)
+
+stable (A:U) : U = neg (neg A) -> A
+
 -- /prelude.ctt
 
 -- "Either all items satisfy given property, or I'll give you a counter-example"
@@ -25,6 +29,29 @@ data or (A B : U) = inl (a : A)
 allOrCounterex (A : U) (D : A -> U)
   : (or ((x : A) -> D x) ((x : A) * (neg (D x))))
   = undefined
+
+-- stableRelationBasic (A : U) (B : A -> U) (a : B a) : U = neg (neg (B a)) -> B a
+stableRelationBasic (A : U) (B : A -> U) (a : A) : U = neg (neg (B a)) -> B a
+
+-- "There does not exist such (x : A) that (B x) => For all (x : A) (not (B x))"
+stableRelation (A : U) (B : A -> U)
+  : (neg ((x : A) * (B x)))
+  -> ((x : A) -> neg (B x))
+  = undefined
+
+-- probably expressable via stableRelation plus stableRelationBasic
+stableRelationNeg (A : U) (B : A -> U)
+  : (neg ((x : A) * (neg (B x))))
+  -> ((x : A) -> neg (neg (B x)))
+  = undefined
+
+allOrCounterex2 (A : U) (D : A -> U) (inhabitant : A)
+  (stbl : (x : A) -> stableRelationBasic A D x)
+  : (dec ((q : A) * (neg (D q))))
+  -> (or ((x : A) -> D x) ((x : A) * (neg (D x))))
+  = split
+  inl qAndNotD -> inr qAndNotD
+  inr notQAndNotD -> inl (\(y : A) -> stbl y (stableRelationNeg A D notQAndNotD y))
 
 -- * Solution #1, via efq and neg from prelude
 
