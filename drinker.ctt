@@ -17,25 +17,30 @@ neg (A : U) : U = A -> N0
 
 -- /prelude.ctt
 
-data bool = true | false
-
 data Either (A B : U) = Left (a : A) | Right (b : B)
-
--- drinker (A : U) (D : A -> U) (x : A)
---   : ((x : A) * ((y : D x) -> (z : A) -> D z))
---   = (x, (\(y : D x) -> \(z : A) -> ?))
-
--- drinker2c2 (A : U) (D : A -> U) (x : A)
---   : ((q : A) * (D q -> Absurd))
---   -> ((x : A) * ((y : D x) -> (z : A) -> D z))
---   = split
---   (q, qNotD) -> ?
 
 -- "Either all items satisfy given property, or I'll give you a counter-example"
 -- To be proven later
 allOrCounterex (A : U) (D : A -> U)
   : (Either ((x : A) -> D x) ((x : A) * (D x -> N0)))
   = undefined
+
+-- * Solution #1, via efq and neg from prelude
+
+-- continuation 1
+drinkerViaEfqC1 (A : U) (D : A -> U) (x : A)
+  : (Either ((q : A) -> D q) ((q : A) * (neg (D q))))
+  -> ((x : A) * ((y : D x) -> (z : A) -> D z))
+  = split
+  Left allD -> (x, (\(_ : D x) -> \(z : A) -> allD z))
+  Right pair -> (pair.1, \(y : D pair.1) -> \(z : A) -> efq (D z) (pair.2 y))
+
+-- solution via efq
+drinkerViaEfq (A : U) (D : A -> U) (x : A)
+  : ((x : A) * ((y : D x) -> (z : A) -> D z))
+  = drinkerViaEfqC1 A D x (allOrCounterex A D)
+
+-- * Solution #2, via manual Either N0
 
 -- continuation 1
 drinkerViaEitherAbsurdC1 (A : U) (D : A -> U) (x : A)
@@ -50,15 +55,16 @@ drinkerViaEitherAbsurd (A : U) (D : A -> U) (x : A)
   : ((x : A) * ((y : D x) -> (z : A) -> Either N0 (D z)))
   = drinkerViaEitherAbsurdC1 A D x (allOrCounterex A D)
 
--- continuation 1
-drinkerViaEfqC1 (A : U) (D : A -> U) (x : A)
-  : (Either ((q : A) -> D q) ((q : A) * (neg (D q))))
-  -> ((x : A) * ((y : D x) -> (z : A) -> D z))
-  = split
-  Left allD -> (x, (\(_ : D x) -> \(z : A) -> allD z))
-  Right pair -> (pair.1, \(y : D pair.1) -> \(z : A) -> efq (D z) (pair.2 y))
+-- * First tries, not sure if useful
 
--- solution via efq
-drinkerViaEfq (A : U) (D : A -> U) (x : A)
-  : ((x : A) * ((y : D x) -> (z : A) -> D z))
-  = drinkerViaEfqC1 A D x (allOrCounterex A D)
+--
+-- drinker (A : U) (D : A -> U) (x : A)
+--   : ((x : A) * ((y : D x) -> (z : A) -> D z))
+--   = (x, (\(y : D x) -> \(z : A) -> ?))
+
+-- drinker2c2 (A : U) (D : A -> U) (x : A)
+--   : ((q : A) * (D q -> Absurd))
+--   -> ((x : A) * ((y : D x) -> (z : A) -> D z))
+--   = split
+--   (q, qNotD) -> ?
+
