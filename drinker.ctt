@@ -1,0 +1,54 @@
+module drinker where
+
+-- drinker (A : U) (B : A -> U) (a : A) (b : B a) (x : A) : B x
+--   = ?
+
+-- drinker (A : U) (B : A -> U) (x : A) : ((x : A) * ((y : B x) -> (z : A) -> B z))
+--   = (x, (\(y : B x) -> ?))
+
+efq (A : U) : N0 -> A = split {}
+
+data bool = true | false
+
+data Either (A B : U) = Left (a : A) | Right (b : B)
+
+data Absurd =
+
+-- drinker (A : U) (D : A -> U) (x : A)
+--   : ((x : A) * ((y : D x) -> (z : A) -> D z))
+--   = (x, (\(y : D x) -> \(z : A) -> ?))
+
+-- drinker2c2 (A : U) (D : A -> U) (x : A)
+--   : ((q : A) * (D q -> Absurd))
+--   -> ((x : A) * ((y : D x) -> (z : A) -> D z))
+--   = split
+--   (q, qNotD) -> ?
+
+-- "Either all items satisfy given property, or I'll give you a counter-example"
+-- To be proven later
+allOrCounterex (A : U) (D : A -> U)
+  : (Either ((x : A) -> D x) ((x : A) * (D x -> Absurd)))
+  = undefined
+
+drinker2eitherc1 (A : U) (D : A -> U) (x : A)
+  : (Either ((q : A) -> D q) ((q : A) * (D q -> Absurd)))
+  -> ((x : A) * ((y : D x) -> (z : A) -> Either Absurd (D z)))
+  = split
+  Left allD -> (x, (\(_ : D x) -> \(z : A) -> Right (allD z)))
+  Right pair -> (pair.1, \(y : D pair.1) -> \(_ : A) -> Left (pair.2 y))
+
+drinker2either (A : U) (D : A -> U) (x : A)
+  : ((x : A) * ((y : D x) -> (z : A) -> Either Absurd (D z)))
+  = drinker2eitherc1 A D x (allOrCounterex A D)
+
+-- drinker2c1 (A : U) (D : A -> U) (x : A)
+--   : (Either ((q : A) -> D q) ((q : A) * (D q -> Absurd)))
+--   -> ((x : A) * ((y : D x) -> (z : A) -> D z))
+--   = split
+--   Left allD -> (x, (\(_ : D x) -> allD))
+--   Right pair -> (pair.1, \(y : D pair.1) -> \(_ : A) -> pair.2 y)
+--   -- Right pair -> (pair.1, \(y : D pair.1) -> pair.2 y)
+
+-- drinker2 (A : U) (D : A -> U) (x : A)
+--   : ((x : A) * ((y : D x) -> (z : A) -> D z))
+--   = drinker2c1 A D x (allOrCounterex A D)
