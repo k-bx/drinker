@@ -83,7 +83,7 @@ drinkerViaEitherAbsurd (A : U) (D : A -> U) (x : A)
   : ((x : A) * ((y : D x) -> (z : A) -> or N0 (D z)))
   = drinkerViaEitherAbsurdC1 A D x (allOrCounterex A D)
 
--- * First tries, not sure if useful
+-- * First attempts, not sure if useful
 
 --
 -- drinker (A : U) (D : A -> U) (x : A)
