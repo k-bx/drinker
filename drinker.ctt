@@ -25,33 +25,9 @@ stable (A:U) : U = neg (neg A) -> A
 -- /prelude.ctt
 
 -- "Either all items satisfy given property, or I'll give you a counter-example"
--- To be proven later
 allOrCounterex (A : U) (D : A -> U)
   : (or ((x : A) -> D x) ((x : A) * (neg (D x))))
   = undefined
-
--- stableRelationBasic (A : U) (B : A -> U) (a : B a) : U = neg (neg (B a)) -> B a
-stableRelationBasic (A : U) (B : A -> U) (a : A) : U = neg (neg (B a)) -> B a
-
--- "There does not exist such (x : A) that (B x) => For all (x : A) (not (B x))"
-stableRelation (A : U) (B : A -> U)
-  : (neg ((x : A) * (B x)))
-  -> ((x : A) -> neg (B x))
-  = undefined
-
--- probably expressable via stableRelation plus stableRelationBasic
-stableRelationNeg (A : U) (B : A -> U)
-  : (neg ((x : A) * (neg (B x))))
-  -> ((x : A) -> neg (neg (B x)))
-  = undefined
-
-allOrCounterex2 (A : U) (D : A -> U) (inhabitant : A)
-  (stbl : (x : A) -> stableRelationBasic A D x)
-  : (dec ((q : A) * (neg (D q))))
-  -> (or ((x : A) -> D x) ((x : A) * (neg (D x))))
-  = split
-  inl qAndNotD -> inr qAndNotD
-  inr notQAndNotD -> inl (\(y : A) -> stbl y (stableRelationNeg A D notQAndNotD y))
 
 -- * Solution #1, via efq and neg from prelude
 
@@ -83,6 +59,31 @@ drinkerViaEitherAbsurd (A : U) (D : A -> U) (x : A)
   : ((x : A) * ((y : D x) -> (z : A) -> or N0 (D z)))
   = drinkerViaEitherAbsurdC1 A D x (allOrCounterex A D)
 
+-- * Some attempts to implement the allOrCounterex
+
+-- stableRelationBasic (A : U) (B : A -> U) (a : B a) : U = neg (neg (B a)) -> B a
+stableRelationBasic (A : U) (B : A -> U) (a : A) : U = neg (neg (B a)) -> B a
+
+-- "There does not exist such (x : A) that (B x) => For all (x : A) (not (B x))"
+stableRelation (A : U) (B : A -> U)
+  : (neg ((x : A) * (B x)))
+  -> ((x : A) -> neg (B x))
+  = undefined
+
+-- probably expressable via stableRelation plus stableRelationBasic
+stableRelationNeg (A : U) (B : A -> U)
+  : (neg ((x : A) * (neg (B x))))
+  -> ((x : A) -> neg (neg (B x)))
+  = undefined
+
+allOrCounterex2 (A : U) (D : A -> U) (inhabitant : A)
+  (stbl : (x : A) -> stableRelationBasic A D x)
+  : (dec ((q : A) * (neg (D q))))
+  -> (or ((x : A) -> D x) ((x : A) * (neg (D x))))
+  = split
+  inl qAndNotD -> inr qAndNotD
+  inr notQAndNotD -> inl (\(y : A) -> stbl y (stableRelationNeg A D notQAndNotD y))
+
 -- * First attempts, not sure if useful
 
 --
@@ -96,3 +97,37 @@ drinkerViaEitherAbsurd (A : U) (D : A -> U) (x : A)
 --   = split
 --   (q, qNotD) -> ?
 
+-- -- by De Morgan, we can state that
+-- ((x : A) -> D x) == neg ((x : A) * (neg (D x)))
+-- (or ((x : A) -> D x) ((x : A) * (neg (D x))))
+-- ==
+-- (or (neg ((x : A) * (neg (D x))))
+--          ((x : A) * (neg (D x)))
+-- which is the axiom of choice!
+
+-- * Attempt via De Morgan
+
+-- One of "De Morgan" laws
+-- not (forall x -> D x) == exists x such that (not (D x))
+-- e.g.
+deMorgan (A : U) (D : A -> U)
+  : (neg ((x : A) -> D x)) -> ((x : A) * (neg (D x)))
+  = undefined
+
+-- law of excluded middle
+lem (A : U)
+  : or A (neg A)
+  = undefined
+
+-- continuation 1
+allOrCounterexViaDemorganC1 (A : U) (D : A -> U)
+  : (ff : or ((x : A) -> D x) (neg ((x : A) -> D x)))
+  -> (or ((x : A) -> D x) ((x : A) * (neg (D x))))
+  = split
+  inl f -> inl f
+  inr f -> inr (deMorgan A D f)
+
+-- "Either all items satisfy given property, or I'll give you a counter-example"
+allOrCounterexViaDemorgan (A : U) (D : A -> U)
+  : (or ((x : A) -> D x) ((x : A) * (neg (D x))))
+  = allOrCounterexViaDemorganC1 A D (lem ((x : A) -> D x))

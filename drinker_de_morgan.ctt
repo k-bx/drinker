@@ -1,0 +1,34 @@
+module drinker_de_morgan where
+
+-- "Absurd" or "Impossible" type
+data N0 =
+
+neg (A : U) : U = A -> N0
+
+data or (A B : U) = inl (a : A)
+                  | inr (b : B)
+
+-- One of "De Morgan" laws
+-- not (forall x -> D x) == exists x such that (not (D x))
+-- e.g.
+deMorgan (A : U) (D : A -> U)
+  : (neg ((x : A) -> D x)) -> ((x : A) * (neg (D x)))
+  = undefined
+
+-- law of excluded middle
+lem (A : U)
+  : or A (neg A)
+  = undefined
+
+-- continuation 1
+allOrCounterexViaDemorganC1 (A : U) (D : A -> U)
+  : (ff : or ((x : A) -> D x) (neg ((x : A) -> D x)))
+  -> (or ((x : A) -> D x) ((x : A) * (neg (D x))))
+  = split
+  inl f -> inl f
+  inr f -> inr (deMorgan A D f)
+
+-- "Either all items satisfy given property, or I'll give you a counter-example"
+allOrCounterexViaDemorgan (A : U) (D : A -> U)
+  : (or ((x : A) -> D x) ((x : A) * (neg (D x))))
+  = allOrCounterexViaDemorganC1 A D (lem ((x : A) -> D x))
