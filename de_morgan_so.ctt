@@ -20,9 +20,8 @@ forallToExists (A : U) (P : A -> U) (inhab : A)
   = (inhab, f inhab)
 
 -- continuation 2
-deMorganSoForwardC2 (A : U) (P : A -> U) (inhab : A)
+deMorganSoForwardC2 (A : U) (P : A -> U)
   (notExist : neg ((x : A) * P x))
-  (negAllP : neg ((y : A) -> P y))
   (q : A)
   : (lem : or (P q)
               (neg (P q)))
@@ -42,7 +41,7 @@ deMorganSoForwardC1 (A : U) (P : A -> U) (inhab : A)
                   (notExist ((forallToExists A P inhab allP)))
   inr negAllP ->
     \(q : A) ->
-      deMorganSoForwardC2 A P inhab notExist negAllP
+      deMorganSoForwardC2 A P notExist
         q (lem (P q))
 
 -- ¬∃x P(x) ↔ ∀x ¬P(x)
