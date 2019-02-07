@@ -1,0 +1,43 @@
+module de_morgan_so where
+
+-- https://philosophy.stackexchange.com/questions/28324/proving-de-morgans-laws-for-quantifiers
+
+data N0 =
+neg (A : U) : U = A -> N0
+data or (A B : U)
+  = inl (a : A)
+  | inr (b : B)
+efq (A : U) : N0 -> A = split {}
+
+lem (A : U)
+  : or A (neg A)
+  = undefined
+
+-- for inhabited A, ∀x P(X) → ∃x P(x)
+forallToExists (A : U) (P : A -> U) (inhab : A)
+  (f : (x : A) -> P x)
+  : ((x : A) * P x)
+  = (inhab, f inhab)
+
+-- -- ¬∀x P(X) → ∀x ¬P(x)
+-- negForallToForallNeg (A : U) (P : A -> U)
+--   (negForall : neg ((x : A) -> P x))
+--   : ((q : A) -> neg (P q))
+--   = (\(q : A) -> ?)
+
+-- continuation 1
+deMorganSoForwardC1 (A : U) (P : A -> U) (inhab : A)
+  (notExist : neg ((x : A) * P x))
+  : (lem : or ((y : A) -> P y)
+              (neg ((y : A) -> P y)))
+  -> ((q : A) -> neg (P q))
+  = split
+  inl allP -> efq ((q : A) -> neg (P q))
+                  (notExist ((forallToExists A P inhab allP)))
+  inr negAllP -> ?
+
+-- ¬∃x P(x) ↔ ∀x ¬P(x)
+deMorganSoForward (A : U) (P : A -> U) (inhab : A)
+  (notExist : neg ((x : A) * P x))
+  : ((q : A) -> neg (P q))
+  = deMorganSoForwardC1 A P inhab notExist (lem ((y : A) -> P y))
