@@ -19,11 +19,17 @@ forallToExists (A : U) (P : A -> U) (inhab : A)
   : ((x : A) * P x)
   = (inhab, f inhab)
 
--- -- ¬∀x P(X) → ∀x ¬P(x)
--- negForallToForallNeg (A : U) (P : A -> U)
---   (negForall : neg ((x : A) -> P x))
---   : ((q : A) -> neg (P q))
---   = (\(q : A) -> ?)
+-- continuation 2
+deMorganSoForwardC2 (A : U) (P : A -> U) (inhab : A)
+  (notExist : neg ((x : A) * P x))
+  (negAllP : neg ((y : A) -> P y))
+  (q : A)
+  : (lem : or (P q)
+              (neg (P q)))
+  -> neg (P q)
+  = split
+  inl pqHolds -> efq (neg (P q)) (notExist (q, pqHolds))
+  inr pqDoesntHold -> pqDoesntHold
 
 -- continuation 1
 deMorganSoForwardC1 (A : U) (P : A -> U) (inhab : A)
@@ -34,7 +40,10 @@ deMorganSoForwardC1 (A : U) (P : A -> U) (inhab : A)
   = split
   inl allP -> efq ((q : A) -> neg (P q))
                   (notExist ((forallToExists A P inhab allP)))
-  inr negAllP -> ?
+  inr negAllP ->
+    \(q : A) ->
+      deMorganSoForwardC2 A P inhab notExist negAllP
+        q (lem (P q))
 
 -- ¬∃x P(x) ↔ ∀x ¬P(x)
 deMorganSoForward (A : U) (P : A -> U) (inhab : A)
