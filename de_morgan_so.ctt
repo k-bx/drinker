@@ -1,5 +1,8 @@
 module de_morgan_so where
 
+-- trying to prove ¬∃x P(x) ↔ ∀x ¬P(x)
+-- and its various forms
+--
 -- https://philosophy.stackexchange.com/questions/28324/proving-de-morgans-laws-for-quantifiers
 
 data N0 =
@@ -44,8 +47,23 @@ deMorganSoForwardC1 (A : U) (P : A -> U) (inhab : A)
       deMorganSoForwardC2 A P notExist
         q (lem (P q))
 
--- ¬∃x P(x) ↔ ∀x ¬P(x)
+-- ¬∃x P(x) → ∀x ¬P(x)
 deMorganSoForward (A : U) (P : A -> U) (inhab : A)
   (notExist : neg ((x : A) * P x))
   : ((q : A) -> neg (P q))
   = deMorganSoForwardC1 A P inhab notExist (lem ((y : A) -> P y))
+
+deMorganSoBackwardC1 (A : U) (P : A -> U) (inhab : A)
+  (allNotP : (x : A) -> neg (P x))
+  : (lem : or ((y : A) * P y)
+              (neg ((y : A) * P y)))
+  -> (neg ((q : A) * P q))
+  = split
+  inl pyHolds -> efq (neg ((q : A) * P q)) (allNotP pyHolds.1 pyHolds.2)
+  inr pyDoesntHold -> pyDoesntHold
+
+-- ∀x ¬P(x) → ¬∃x P(x)
+deMorganSoBackward (A : U) (P : A -> U) (inhab : A)
+  (allNotP : (x : A) -> neg (P x))
+  : (neg ((x : A) * P x))
+  = deMorganSoBackwardC1 A P inhab allNotP (lem ((x : A) * P x))
