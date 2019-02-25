@@ -1,0 +1,12 @@
+module quantifier_intro_elim where
+
+-- Trying to figureo out the meaning of ∀-elimination and
+-- ∃-introduction in terms of Curry-Howard
+--
+-- Sources:
+-- - https://faculty.washington.edu/smcohen/120/Chapter12.pdf
+
+-- From Dick Cheney is mortal infer Someone is mortal
+existentialIntro (A : U) (B : A -> U) (x : A) (_ : B x)
+  : ((y : A) * (B y))
+  = undefined
